@@ -18,19 +18,26 @@ export default function UploadPage() {
     reader.onload = async (e) => {
       const text = e.target.result;
 
-      const res = await fetch('/api/fixtures/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text }),
-      });
-
       try {
+        const res = await fetch('/api/fixtures/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text }),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          setMessage(errorData.error || 'Upload failed.');
+          return;
+        }
+
         const data = await res.json();
-        setMessage(data.message || data.error);
+        setMessage(data.message || 'Upload successful.');
       } catch (err) {
-        setMessage('Upload failed: invalid server response');
+        console.error('Upload error:', err);
+        setMessage('Upload failed: server error');
       }
     };
 

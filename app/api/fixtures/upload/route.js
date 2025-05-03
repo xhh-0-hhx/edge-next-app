@@ -4,12 +4,22 @@ import Fixture from '@/models/Fixture';
 import { parse } from 'csv-parse/sync';
 
 export async function POST(req) {
+  if (req.method !== 'POST') {
+    return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
+  }
+
   try {
   
     await dbConnect();
 
   
-    const { text } = await req.json();
+    let text;
+    try {
+      const body = await req.json();
+      text = body.text;
+    } catch (err) {
+      return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 });
+    }
 
     if (!text) {
       return NextResponse.json({ error: 'No CSV text received' }, { status: 400 });
