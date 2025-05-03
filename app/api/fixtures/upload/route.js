@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Fixture from '@/models/Fixture';
-import { parse } from 'csv-parse/lib/sync';
+import { parse } from 'csv-parse/sync';
 
 export async function POST(req) {
   try {
