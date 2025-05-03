@@ -1,24 +1,32 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Fixture from '@/models/Fixture';
-import { parse } from 'csv-parse/sync';
+import { parse } from 'csv-parse/lib/sync';
 
 export async function POST(req) {
-  await dbConnect();
-
   try {
-    const { text } = await req.json(); // Expecting { text: 'csv_content' }
+  
+    await dbConnect();
+
+  
+    const { text } = await req.json();
 
     if (!text) {
       return NextResponse.json({ error: 'No CSV text received' }, { status: 400 });
     }
 
-    const parsed = parse(text, {
+   
+    const records = parse(text, {
       columns: true,
       skip_empty_lines: true,
     });
 
-    const fixtures = parsed.map(row => ({
+    if (!records.length) {
+      return NextResponse.json({ error: 'No valid records parsed' }, { status: 400 });
+    }
+
+ 
+    const fixtures = records.map(row => ({
       fixture_mid: row.fixture_mid,
       season: row.season,
       competition_name: row.competition_name,
@@ -28,17 +36,12 @@ export async function POST(req) {
       away_team: row.away_team,
     }));
 
-    console.log('Parsed Fixtures:', fixtures);
-
-    if (fixtures.length === 0) {
-      return NextResponse.json({ error: 'No valid data parsed' }, { status: 400 });
-    }
-
+  
     await Fixture.insertMany(fixtures);
 
-    return NextResponse.json({ message: 'Upload successful' });
+    return NextResponse.json({ message: 'Upload successful' }, { status: 200 });
   } catch (error) {
-    console.error('Error during upload:', error);
+    console.error('Upload error:', error);
     return NextResponse.json({ error: 'Server error during upload' }, { status: 500 });
   }
 }
