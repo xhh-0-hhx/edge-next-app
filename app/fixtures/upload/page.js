@@ -14,16 +14,27 @@ export default function UploadPage() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const text = e.target.result;
 
-    const res = await fetch('/api/fixtures/upload', {
-      method: 'POST',
-      body: formData,
-    });
+      const res = await fetch('/api/fixtures/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
 
-    const data = await res.json();
-    setMessage(data.message || data.error);
+      try {
+        const data = await res.json();
+        setMessage(data.message || data.error);
+      } catch (err) {
+        setMessage('Upload failed: invalid server response');
+      }
+    };
+
+    reader.readAsText(file);
   };
 
   return (
@@ -101,7 +112,7 @@ export default function UploadPage() {
           cursor: 'pointer',
         }}
       >
-        Upload
+        Upload CSV
       </button>
 
       {message && (
