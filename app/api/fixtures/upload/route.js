@@ -11,7 +11,7 @@ export async function POST(req) {
     console.log('✅ Received text from body');
 
     if (!text) {
-      console.error('❌ No CSV text received');
+      console.error('No CSV text received');
       return NextResponse.json({ error: 'No CSV text received' }, { status: 400 });
     }
 
@@ -25,7 +25,7 @@ export async function POST(req) {
     console.log(`✅ Parsed ${records.length} records from CSV`);
 
     if (!Array.isArray(records) || !records.length) {
-      console.error('❌ CSV parsing returned no valid records');
+      console.error('CSV parsing returned no valid records');
       return NextResponse.json({ error: 'No valid records parsed' }, { status: 400 });
     }
 
@@ -44,7 +44,7 @@ export async function POST(req) {
 
     return NextResponse.json({ message: `Upload successful. Inserted ${inserted.length} records.` }, { status: 200 });
   } catch (error) {
-    console.error('❌ Upload API Error:', error.message);
+    console.error('Upload API Error:', error.message);
     console.error(error.stack);
     return NextResponse.json({ error: 'Server error during upload' }, { status: 500 });
   }
